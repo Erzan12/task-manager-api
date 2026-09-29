@@ -1,13 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 
-@Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+export const users = pgTable('users', {
+  id: uuid('id').defaultRandom().primaryKey(),
 
-  @Column({ unique: true })
-  email: string;
+  email: varchar('email', {
+    length: 255,
+  }).notNull(),
 
-  @Column()
-  password: string;
-}
+  name: varchar('name', {
+    length: 255,
+  }).notNull(),
+
+  createdAt: timestamp('created_at')
+    .defaultNow()
+    .notNull(),
+});
