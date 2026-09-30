@@ -1,35 +1,58 @@
-// import { Injectable } from '@nestjs/common';
-// import { InjectRepository } from '@nestjs/typeorm';
-// import { Repository } from 'typeorm';
-// import * as bcrypt from 'bcrypt';
-// import { User } from 'src/middleware/jwt/user.entity';
+import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
+import { Database, DATABASE } from 'src/database/database.provider';
+import { users } from 'src/database/schema';
+import { CreateUserDto } from './dto/user.dto';
 
-// @Injectable()
-// export class UserService {
-//   constructor(
-//     @InjectRepository(User)
-//     private readonly userRepo: Repository<User>,
-//   ) {}
+@Injectable()
+export class UsersService {
+  constructor(
+    @Inject(DATABASE)
+    private readonly db: Database,
+  ) {}
 
-//   async create(email: string, password: string): Promise<User> {
-//     const hashed = await bcrypt.hash(password, 10);
-//     const user = this.userRepo.create({ email, password: hashed });
-//     return this.userRepo.save(user);
-//   }
+  async findAll() {
+    const users = await this.db.query.users.findMany();
 
-//   async findByEmail(email: string): Promise<User | null> {
-//     return this.userRepo.findOne({ where: { email } });
-//   }
+    if (users.length === 0) {
+        throw new BadRequestException('No users found.');
+    }
 
-//   async findById(id: number): Promise<User | null> {
-//     return this.userRepo.findOne({ where: { id } });
-//   }
+    return {
+        status: 'success',
+        message: 'Here is the list of users',
+        users,
+    };
+  }
 
-//   async validateUser(email: string, password: string): Promise<User | null> {
-//     const user = await this.findByEmail(email);
-//     if (user && (await bcrypt.compare(password, user.password))) {
-//       return user;
-//     }
-//     return null;
-//   }
-// }
+  async findByEmail(email: string) {
+    const user = await this.db.query.users.findFirst({
+        where: { email },
+    });
+
+    if (!user) {
+        throw new BadRequestException('User does not exists.');
+    }
+
+    return {
+        status: 'success',
+        message: 'Here is the user',
+        user,
+    };
+  }
+
+  async create(dto: CreateUserDto) {
+    const [user] = await this.db
+      .insert(users)
+      .values({
+        email: dto.email,
+        name: dto.name,
+      })
+      .returning();
+
+    return {
+        status: 'success',
+        message: 'User created successfully',
+        user,
+    };
+  }
+}
