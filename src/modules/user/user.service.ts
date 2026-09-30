@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Inject, Injectable } from '@nes
 import { Database, DATABASE } from 'src/database/database.provider';
 import { users } from 'src/database/schema';
 import { CreateUserDto } from './dto/user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -41,11 +42,14 @@ export class UsersService {
   }
 
   async create(dto: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
     const [user] = await this.db
       .insert(users)
       .values({
         email: dto.email,
         name: dto.name,
+        password: hashedPassword,
       })
       .returning();
 

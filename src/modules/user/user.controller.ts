@@ -18,7 +18,7 @@ export class UserController {
         return this.userService.findByEmail(email);
     }
 
-    @Post()
+    @Post('/user')
     createUser(
         @Body() dto: CreateUserDto
     ) {
