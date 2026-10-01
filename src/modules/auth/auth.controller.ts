@@ -1,6 +1,7 @@
 import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { Public } from 'src/utils/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -12,11 +13,12 @@ export class AuthController {
 //     return { message: 'User registered', user };
 //   }
 
+  @Public()
   @Post('login')
   async login(
     // @Body() body: { email: string; password: string }) 
     @Body() dto: LoginDto
-)
+  )
     {
     return this.authService.login(dto);
   }
