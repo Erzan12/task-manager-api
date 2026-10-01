@@ -49,6 +49,7 @@ export class UsersService {
       .values({
         email: dto.email,
         name: dto.name,
+        username: dto.username,
         password: hashedPassword,
       })
       .returning();
