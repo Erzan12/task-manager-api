@@ -24,6 +24,51 @@ export class TasksService {
         return existingUser;
     }
 
+    async getTask(taskId: string, user: RequestUser) {
+        await this.assertAccess(user.id);
+
+        const task = await this.db.query.tasks.findFirst({
+            where: eq(tasks.id, taskId),
+            with: {
+                author: true,
+                category: true,
+            },
+        });
+
+        if (!task) {
+            throw new BadRequestException('Task does not exists.');
+        }
+
+        return {
+            status: 'success',
+            message: 'Here is the task',
+            task,
+        };
+    }
+
+    async getTasks(user: RequestUser) {
+        await this.assertAccess(user.id);
+
+        const taskList = await this.db.query.tasks.findMany({
+            where: eq(tasks.userId, user.id),
+            with: {
+                author: true,
+                category: true,
+            },
+        });
+
+
+        if (taskList.length === 0) {
+            throw new BadRequestException('No tasks added.')
+        }
+
+        return {
+            status: 'success',
+            message: 'Your active tasks.',
+            taskList,
+        };
+    }
+
     async createTask(user: RequestUser, dto: CreateTaskDto) {
         await this.assertAccess(user.id);
 
