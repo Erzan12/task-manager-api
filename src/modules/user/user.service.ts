@@ -4,6 +4,7 @@ import { users } from 'src/database/schema';
 import { CreateUserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { RequestUser } from 'src/utils/types/request-user.interface';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class UsersService {
@@ -28,7 +29,7 @@ export class UsersService {
 
   async findByEmail(email: string) {
     const user = await this.db.query.users.findFirst({
-        where: { email },
+        where: eq(users.email, email),
     });
 
     if (!user) {

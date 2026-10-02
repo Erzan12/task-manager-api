@@ -1,8 +1,10 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { eq } from 'drizzle-orm';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Database, DATABASE } from 'src/database/database.provider';
+import { users } from 'src/database/schema';
 import { JwtPayload } from 'src/utils/types/authentication.interface';
 import { RequestUser } from 'src/utils/types/request-user.interface';
 
@@ -28,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload): Promise<RequestUser> {
     const user = await this.db.query.users.findFirst({
-      where: { id: payload.userUUID },
+      where: eq(users.id, payload.userUUID),
     })
 
     if (!user || user.is_active !== true) {

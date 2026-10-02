@@ -17,7 +17,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const user = await this.db.query.users.findFirst({
-        where: { email },
+        where: eq(users.email, email),
     });
 
     if (!user) {
