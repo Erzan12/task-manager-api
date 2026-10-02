@@ -15,15 +15,17 @@ export class UserController {
 
     @Get('/user')
     getUserByEmail(
-        @Query('email') email: string
+        @Query('email') email: string,
+        @SessionUser() user: RequestUser
     ) {
-        return this.userService.findByEmail(email);
+        return this.userService.findById(email, user);
     }
 
     @Post('/user')
     createUser(
-        @Body() dto: CreateUserDto
+        @Body() dto: CreateUserDto,
+        @SessionUser() user: RequestUser,
     ) {
-        return this.userService.create(dto);
+        return this.userService.create(dto, user);
     }
 }

@@ -13,8 +13,37 @@ export class UsersService {
     private readonly db: Database,
   ) {}
 
+  private async assertAccess(userId: string) {
+      const existingUser = await this.db.query.users.findFirst({
+          where: eq(users.id, userId)
+      });
+  
+      if (!existingUser || existingUser.is_active === false) {
+          throw new BadRequestException('Session user is not allowed to perform this action, might not exists or inactive.');
+      }
+
+      return existingUser;
+  }
+
   async findAll(user: RequestUser) {
-    const users = await this.db.query.users.findMany();
+    await this.assertAccess(user.id);
+
+    const users = await this.db.query.users.findMany({
+      columns: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        is_active: true,
+        token_version: true,
+        last_login: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      with: {
+        tasks: true,
+      },
+    });
 
     if (users.length === 0) {
         throw new BadRequestException('No users found.');
@@ -27,26 +56,44 @@ export class UsersService {
     };
   }
 
-  async findByEmail(email: string) {
-    const user = await this.db.query.users.findFirst({
-        where: eq(users.email, email),
+  async findById(id: string, user: RequestUser) {
+    await this.assertAccess(user.id);
+    
+    const existingUser = await this.db.query.users.findFirst({
+      where: eq(users.id, id),
+      columns: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        is_active: true,
+        token_version: true,
+        last_login: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      with: {
+        tasks: true,
+      },
     });
 
-    if (!user) {
+    if (!existingUser) {
         throw new BadRequestException('User does not exists.');
     }
 
     return {
         status: 'success',
         message: 'Here is the user',
-        user,
+        existingUser,
     };
   }
 
-  async create(dto: CreateUserDto) {
+  async create(dto: CreateUserDto, user: RequestUser) {
+    await this.assertAccess(user.id);
+
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    const [user] = await this.db
+    const [newUser] = await this.db
       .insert(users)
       .values({
         email: dto.email,
@@ -59,7 +106,7 @@ export class UsersService {
     return {
         status: 'success',
         message: 'User created successfully',
-        user,
+        newUser,
     };
   }
 }
