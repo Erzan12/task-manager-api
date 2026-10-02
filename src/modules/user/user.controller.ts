@@ -1,14 +1,16 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, Req } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { CreateUserDto } from './dto/user.dto';
+import { RequestUser } from 'src/utils/types/request-user.interface';
+import { SessionUser } from 'src/utils/decorators/session-user.decorator';
 
 @Controller()
 export class UserController {
     constructor(private userService: UsersService) {}
 
     @Get('/users')
-    getAllUser() {
-        return this.userService.findAll();
+    getAllUser(@SessionUser() user: RequestUser) {
+        return this.userService.findAll(user);
     }
 
     @Get('/user')

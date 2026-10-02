@@ -3,6 +3,7 @@ import { Database, DATABASE } from 'src/database/database.provider';
 import { users } from 'src/database/schema';
 import { CreateUserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
+import { RequestUser } from 'src/utils/types/request-user.interface';
 
 @Injectable()
 export class UsersService {
@@ -11,7 +12,7 @@ export class UsersService {
     private readonly db: Database,
   ) {}
 
-  async findAll() {
+  async findAll(user: RequestUser) {
     const users = await this.db.query.users.findMany();
 
     if (users.length === 0) {
@@ -49,6 +50,7 @@ export class UsersService {
       .values({
         email: dto.email,
         name: dto.name,
+        username: dto.username,
         password: hashedPassword,
       })
       .returning();
