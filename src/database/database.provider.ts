@@ -1,7 +1,7 @@
 import { Provider } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import { relations } from './relations';
+import * as schema from './schema';
 
 const createDb = () => {
   const pool = new Pool({
@@ -10,7 +10,7 @@ const createDb = () => {
 
   return drizzle({
     client: pool,
-    relations,
+    schema,
   });
 };
 
