@@ -1,6 +1,7 @@
 import { pgEnum, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { users } from "./users.schema";
 import { categories } from "./categories.schema";
+import { relations } from "drizzle-orm";
 
 export const taskStatusEnum = pgEnum('task_status', ['TODO', 'IN_PROGRESS', 'COMPLETED', 'ARCHIEVED']);
 export const tasksPriorityEnum = pgEnum('task_priority', ['LOW', 'MEDIUM', 'HIGH', 'URGENT']);
@@ -17,3 +18,15 @@ export const tasks = pgTable('tasks', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
+
+export const taskRelations = relations(tasks, ({ one }) => ({
+  author: one(users, {
+    fields: [tasks.userId],
+    references: [users.id], 
+  }),
+
+  category: one(categories, {
+    fields: [tasks.categoryId],
+    references: [categories.id],
+  }),
+}));

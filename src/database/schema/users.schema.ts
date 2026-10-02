@@ -1,4 +1,6 @@
+import { relations } from 'drizzle-orm';
 import { boolean, integer, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { tasks } from './task.schema';
 
 export const users = pgTable('users', {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -20,3 +22,7 @@ export const users = pgTable('users', {
         .defaultNow()
         .notNull()
 });
+
+export const userRelations = relations(users, ({ many }) => ({
+    tasks: many(tasks),
+}));
