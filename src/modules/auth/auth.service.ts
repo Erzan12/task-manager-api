@@ -13,11 +13,7 @@ export class AuthService {
     private readonly db: Database,
     private readonly jwtService: JwtService,
   ) {}
-
-//   async validateUser(email: string, password: string): Promise<User | null> {
-//     return this.userService.validateUser(email, password);
-//   }
-
+  
   async validateUser(email: string, password: string) {
     const user = await this.db.query.users.findFirst({
         where: { email },
@@ -72,12 +68,4 @@ export class AuthService {
         token,
     }
   }
-
-//   async register(email: string, password: string) {
-//     return this.userService.create(email, password);
-//   }
-
-//   async validateUserById(id: number): Promise<User | null> {
-//     return this.userService.findById(id);
-//   }
 }
