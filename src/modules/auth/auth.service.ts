@@ -4,7 +4,8 @@ import * as bcrypt from 'bcrypt';
 import { Database, DATABASE } from 'src/database/database.provider';
 import { LoginDto } from './dto/login.dto';
 import { users } from 'src/database/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
+import { RequestUser } from 'src/utils/types/request-user.interface';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,7 @@ export class AuthService {
     private readonly db: Database,
     private readonly jwtService: JwtService,
   ) {}
-  
+
   async validateUser(email: string, password: string) {
     const user = await this.db.query.users.findFirst({
         where: { email },
@@ -67,5 +68,16 @@ export class AuthService {
         message: 'Login successfully',
         token,
     }
+  }
+
+  async logout(user: RequestUser) {
+    await this.db
+      .update(users)
+      .set({
+        token_version: sql`${users.token_version} + 1`,
+      })
+      .where(eq(users.id, user.id));
+
+    return { message: 'User logged out successfully' };
   }
 }
