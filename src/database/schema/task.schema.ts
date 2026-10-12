@@ -5,6 +5,7 @@ import { relations } from "drizzle-orm";
 
 export const taskStatusEnum = pgEnum('task_status', ['TODO', 'IN_PROGRESS', 'COMPLETED', 'ARCHIEVED']);
 export const tasksPriorityEnum = pgEnum('task_priority', ['LOW', 'MEDIUM', 'HIGH', 'URGENT']);
+export type TasksPriority = (typeof tasksPriorityEnum.enumValues)[number];
 
 export const tasks = pgTable('tasks', {
     id: uuid('id').defaultRandom().primaryKey(),

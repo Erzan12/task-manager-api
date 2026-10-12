@@ -1,9 +1,10 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Database, DATABASE } from 'src/database/database.provider';
 import { RequestUser } from 'src/utils/types/request-user.interface';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { eq } from 'drizzle-orm';
 import { tasks, users } from 'src/database/schema';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -85,6 +86,35 @@ export class TasksService {
         return {
             status: 'success',
             message: 'Task created successfully',
+            task,
+        };
+    }
+
+    async updateTask(user: RequestUser, dto: UpdateTaskDto, taskId: string) {
+        await this.assertAccess(user.id);
+
+        const existingTask = await this.db.query.tasks.findFirst({
+            where: eq(tasks.id, taskId),
+        })
+
+        if (!existingTask) {
+            throw new NotFoundException('Task does not exists.');
+        }
+
+        const [task] = await this.db
+            .update(tasks)
+            .set({
+                title: dto.title ?? existingTask.title,
+                description: dto.description ?? existingTask.description,
+                priority: dto.priority ?? existingTask.priority,
+                dueDate: dto.dueDate ? new Date(dto.dueDate) : existingTask.dueDate,
+                userId: user.id,
+            })
+            .returning();
+
+        return {
+            status: 'success',
+            message: 'Task updated successfully',
             task,
         };
     }
