@@ -1,10 +1,10 @@
-import { Controller, Post, Body, Header, Req, Res } from '@nestjs/common';
+import { Controller, Post, Body, Header, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { Public } from 'src/utils/decorators/public.decorator';
 import { SessionUser } from 'src/utils/decorators/session-user.decorator';
 import { RequestUser } from 'src/utils/types/request-user.interface';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth')
