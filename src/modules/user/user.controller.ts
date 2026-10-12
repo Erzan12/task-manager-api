@@ -4,24 +4,24 @@ import { CreateUserDto } from './dto/user.dto';
 import { RequestUser } from 'src/utils/types/request-user.interface';
 import { SessionUser } from 'src/utils/decorators/session-user.decorator';
 
-@Controller()
+@Controller('/users')
 export class UserController {
     constructor(private userService: UsersService) {}
 
-    @Get('/users')
+    @Get()
     getAllUser(@SessionUser() user: RequestUser) {
         return this.userService.findAll(user);
     }
 
-    @Get('/user')
-    getUserByEmail(
-        @Query('email') email: string,
+    @Get('/:userId')
+    getUserById(
+        @Query('userId') userId: string,
         @SessionUser() user: RequestUser
     ) {
-        return this.userService.findById(email, user);
+        return this.userService.findById(userId, user);
     }
 
-    @Post('/user')
+    @Post()
     createUser(
         @Body() dto: CreateUserDto,
         @SessionUser() user: RequestUser,
