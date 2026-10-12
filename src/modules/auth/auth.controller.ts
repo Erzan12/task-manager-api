@@ -5,6 +5,7 @@ import { Public } from 'src/utils/decorators/public.decorator';
 import { SessionUser } from 'src/utils/decorators/session-user.decorator';
 import { RequestUser } from 'src/utils/types/request-user.interface';
 import { Request, Response } from 'express';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -12,11 +13,23 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  login(
-    @Body() dto: LoginDto
+  @ApiOperation({ summary: 'User authorized login' })
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
   )
     {
-    return this.authService.login(dto);
+    const result = await this.authService.login(dto);
+
+    res.cookie('accessToken', result.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 3600000,
+      path: '/',
+    });
+
+    return result;
   }
 
   @Post('logout')
