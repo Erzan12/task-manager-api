@@ -6,6 +6,7 @@ import { UserModule } from './modules/user/user.module';
 import { APP_GUARD } from '@nestjs/core';
 import { CustomJwtAuthGuard } from './middleware/jwt/jwt.auth.guard';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
     DatabaseModule,
     UserModule,
     TasksModule,
+    CategoriesModule,
   ],
   providers: [
     {
