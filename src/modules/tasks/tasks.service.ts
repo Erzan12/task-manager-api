@@ -60,7 +60,7 @@ export class TasksService {
 
 
         if (taskList.length === 0) {
-            throw new BadRequestException('No tasks added.')
+            throw new BadRequestException('No tasks added.');
         }
 
         return {
